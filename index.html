@@ -1,0 +1,424 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusFind - Lost & Found</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6fb;
+    color: #222;
+}
+
+header {
+    background: #243b64;
+    color: white;
+    padding: 20px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 24px;
+}
+
+header p {
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 14px;
+}
+
+.hero {
+    text-align: center;
+    padding: 45px 20px;
+    background: #dfe9ff;
+}
+
+.hero h2 {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.hero p {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+button {
+    background: #243b64;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #172945;
+}
+
+.container {
+    width: 84%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+.section-title {
+    margin-bottom: 18px;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.search-bar input,
+.search-bar select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex: 1;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.card .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.card h3 {
+    margin-bottom: 8px;
+}
+
+.card p {
+    color: #666;
+    font-size: 14px;
+    margin: 6px 0;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.lost {
+    background: #ffe0e0;
+    color: #b42318;
+}
+
+.found {
+    background: #dff7e5;
+    color: #137333;
+}
+
+.card button {
+    margin-top: 12px;
+    width: 100%;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.modal-content textarea {
+    height: 80px;
+    resize: none;
+}
+
+.close {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    margin-top: 40px;
+    background: #243b64;
+    color: white;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-bar {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>CampusFind</h1>
+        <p>Reconnect. Recover. Return.</p>
+    </div>
+
+    <nav>
+        <a href="#items">Browse Items</a>
+        <a href="#" onclick="openModal()">Report Item</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h2>Lost Something? Find It Here.</h2>
+    <p>A centralized platform for reporting and recovering lost items on campus.</p>
+    <button onclick="openModal()">Report Lost / Found Item</button>
+</section>
+
+<div class="container" id="items">
+
+    <h2 class="section-title">Browse Lost & Found Items</h2>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for an item..." onkeyup="displayItems()">
+
+        <select id="filterType" onchange="displayItems()">
+            <option value="All">All Items</option>
+            <option value="Lost">Lost</option>
+            <option value="Found">Found</option>
+        </select>
+    </div>
+
+    <div class="cards" id="itemContainer"></div>
+
+</div>
+
+<div class="modal" id="reportModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h2>Report an Item</h2>
+
+        <select id="itemType">
+            <option value="Lost">I Lost an Item</option>
+            <option value="Found">I Found an Item</option>
+        </select>
+
+        <input type="text" id="itemName" placeholder="Item name">
+
+        <select id="itemCategory">
+            <option value="ID Card">ID Card</option>
+            <option value="Water Bottle">Water Bottle</option>
+            <option value="Keys">Keys</option>
+            <option value="Stationery">Stationery</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <input type="text" id="itemLocation" placeholder="Location">
+
+        <input type="date" id="itemDate">
+
+        <textarea id="itemDescription" placeholder="Describe the item..."></textarea>
+
+        <button onclick="addItem()">Submit Report</button>
+    </div>
+</div>
+
+<footer>
+    CampusFind © 2026 | College Lost-and-Found Prototype
+</footer>
+
+<script>
+let items = [
+    {
+        type: "Lost",
+        name: "Student ID Card",
+        category: "ID Card",
+        location: "Library",
+        date: "2026-09-15",
+        description: "Blue college ID card with a black cover.",
+        icon: "🪪"
+    },
+    {
+        type: "Found",
+        name: "Black Water Bottle",
+        category: "Water Bottle",
+        location: "Canteen",
+        date: "2026-09-16",
+        description: "Black bottle with a silver cap.",
+        icon: "🧴"
+    },
+    {
+        type: "Lost",
+        name: "Calculator",
+        category: "Electronics",
+        location: "Room 204",
+        date: "2026-09-14",
+        description: "Scientific calculator with initials written on the back.",
+        icon: "🧮"
+    }
+];
+
+function displayItems() {
+    const container = document.getElementById("itemContainer");
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const filter = document.getElementById("filterType").value;
+
+    container.innerHTML = "";
+
+    const filteredItems = items.filter(item => {
+        const matchesSearch =
+            item.name.toLowerCase().includes(search) ||
+            item.category.toLowerCase().includes(search) ||
+            item.location.toLowerCase().includes(search);
+
+        const matchesFilter =
+            filter === "All" || item.type === filter;
+
+        return matchesSearch && matchesFilter;
+    });
+
+    if (filteredItems.length === 0) {
+        container.innerHTML = "<p>No matching items found.</p>";
+        return;
+    }
+
+    filteredItems.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="card">
+                <div class="icon">${item.icon || "📦"}</div>
+                <span class="badge ${item.type.toLowerCase()}">${item.type}</span>
+                <h3>${item.name}</h3>
+                <p><strong>Category:</strong> ${item.category}</p>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Date:</strong> ${item.date}</p>
+                <p>${item.description}</p>
+                <button onclick="claimItem(${index})">Claim / Contact</button>
+            </div>
+        `;
+    });
+}
+
+function openModal() {
+    document.getElementById("reportModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("reportModal").style.display = "none";
+}
+
+function addItem() {
+    const type = document.getElementById("itemType").value;
+    const name = document.getElementById("itemName").value;
+    const category = document.getElementById("itemCategory").value;
+    const location = document.getElementById("itemLocation").value;
+    const date = document.getElementById("itemDate").value;
+    const description = document.getElementById("itemDescription").value;
+
+    if (!name || !location || !date || !description) {
+        alert("Please fill in all required fields.");
+        return;
+    }
+
+    items.push({
+        type,
+        name,
+        category,
+        location,
+        date,
+        description,
+        icon: "📦"
+    });
+
+    displayItems();
+    closeModal();
+
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemLocation").value = "";
+    document.getElementById("itemDate").value = "";
+    document.getElementById("itemDescription").value = "";
+
+    alert("Your report has been submitted successfully!");
+}
+
+function claimItem(index) {
+    const item = items[index];
+
+    const name = prompt("Enter your name:");
+    if (!name) return;
+
+    const contact = prompt("Enter your contact number or email:");
+    if (!contact) return;
+
+    alert(
+        "Claim request submitted!\n\n" +
+        "Item: " + item.name +
+        "\nYour details have been sent to the verification team."
+    );
+}
+
+displayItems();
+</script>
+
+</body>
+</html>
+```
